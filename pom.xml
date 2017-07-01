@@ -1,0 +1,159 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.chj</groupId>
+	<artifactId>SpringBootDBS</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+
+	<!-- spring boot 父节点依赖, 引入这个之后相关的引入就不需要添加version配置， spring boot会自动选择最合适的版本进行添加。 在这里使用的1.3.3版本，可能目前官方有最新的版本了，大家可以 使用最新的版本。 -->
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<!-- <version>1.5.2.RELEASE</version> -->
+		<version>1.2.5.RELEASE</version>
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jdk.version>1.7</jdk.version>
+		<commons-lang3.version>2.4</commons-lang3.version>
+	</properties>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<nonFilteredFileExtensions>
+						<nonFilteredFileExtension>ico</nonFilteredFileExtension>
+					</nonFilteredFileExtensions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+						<configuration>
+							<skip>${spring.boot.maven.plugin.skip}</skip>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.oracle.weblogic</groupId>
+				<artifactId>weblogic-maven-plugin</artifactId>
+				<version>10.3.6.0</version>
+				<configuration>
+					<adminurl>${weblogic.console.adminurl}</adminurl>
+					<user>${weblogic.console.user}</user>
+					<password>${weblogic.console.password}</password>
+					<targets>${weblogic.console.targets}</targets>
+					<upload>true</upload>
+					<action>deploy</action>
+					<remote>false</remote>
+					<verbose>true</verbose>
+					<source>target/${project.build.finalName}.war</source>
+					<name>${project.build.finalName}</name>
+				</configuration>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+
+	<dependencies>
+		<!-- 单元测试包，在这里没有使用到. -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- spring boot web支持：mvc,aop... 这个是最基本的，基本每一个基本的demo都是需要引入的。 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- mysql驱动. 我们的demo是多数据源，在这里使用Mysql数据库. -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+
+
+		<!-- spring jpa spring jpa中带有自带的tomcat数据连接池; 在代码中我们也需要用到. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
+		<!-- DB dependencies -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${commons-lang3.version}</version>
+		</dependency>
+
+		<!-- <dependency> <groupId>com.alibaba</groupId> <artifactId>druid</artifactId> <version>1.0.18</version> </dependency> -->
+
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>test</id>
+			<activation>
+				<property>
+					<name>env</name>
+					<value>test</value>
+				</property>
+			</activation>
+			<properties>
+				<weblogic.console.adminurl>t3://10.16.136.229:30010/console</weblogic.console.adminurl>
+				<weblogic.console.user>weblogic</weblogic.console.user>
+				<weblogic.console.password>Pass1234</weblogic.console.password>
+				<weblogic.console.targets> test_cluster</weblogic.console.targets>
+			</properties>
+		</profile>
+	</profiles>
+
+</project>
